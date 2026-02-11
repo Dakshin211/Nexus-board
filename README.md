@@ -49,16 +49,22 @@ NexusBoard is a futuristic, high-performance node visualization platform designe
 **Clone the Project:**
 ```bash
 git clone [https://github.com/Dakshin211/Nexus-board.git](https://github.com/Dakshin211/Nexus-board.git)
-cd Nexus-board```
+cd Nexus-board
+```
 Install Frontend Dependencies:
 
-Bash
+
+```Bash
 npm install
+```
 Install Backend Dependencies:
 
-Bash
+
+```Bash
 cd server
 npm install
+```
+
 3. Environment Configuration
 Create a .env file in the server directory:
 
@@ -70,22 +76,24 @@ PORT=5000
 Step 1: Start the Backend Server
 From the server folder:
 
-Bash
+```Bash
 node index.js
+```
 Step 2: Seed the Professional Data
 NexusBoard requires seeded data to demonstrate its hierarchical capabilities:
 
-Bash
+```Bash
 # To generate the Hospital Command Map
 node hospital.js
-
+```
 # To generate the 10,000 Node Stress Test
 node stress_test.js
 Step 3: Start the Frontend
 Open a new terminal in the root folder:
 
-Bash
+```Bash
 npm run dev
+```
 Visit http://localhost:3000 to access the system.
 
 🏗️ Usage Instructions
