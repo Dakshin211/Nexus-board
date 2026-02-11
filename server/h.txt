@@ -1,0 +1,78 @@
+const mongoose = require('mongoose');
+const Node = require('./models/Node');
+require('dotenv').config();
+
+const SEED_PROJECT = "medhub-core";
+
+async function seed() {
+  await mongoose.connect(process.env.MONGO_URI);
+  await Node.deleteMany({ projectId: SEED_PROJECT });
+
+  const departments = [
+    { name: "Emergency Department", x: 1000, y: 1000, status: "error" },
+    { name: "Surgical Intensive Care", x: 3500, y: 1000, status: "active" },
+    { name: "Cardiology Center", x: 6000, y: 1000, status: "active" },
+    { name: "Neurology Wing", x: 1000, y: 3500, status: "idle" },
+    { name: "Diagnostic Radiology", x: 3500, y: 3500, status: "active" },
+    { name: "Oncology & Chemotherapy", x: 6000, y: 3500, status: "active" },
+    { name: "Pediatrics & NICU", x: 1000, y: 6000, status: "active" },
+    { name: "Pathology Laboratories", x: 3500, y: 6000, status: "idle" },
+    { name: "Pharmacy & Dispensary", x: 6000, y: 6000, status: "active" },
+    { name: "Inpatient Wards (Floor 1)", x: 8500, y: 1000, status: "active" },
+    { name: "Outpatient Clinics", x: 8500, y: 3500, status: "idle" },
+    { name: "Hospital Administration", x: 8500, y: 6000, status: "offline" }
+  ];
+
+  for (const dept of departments) {
+    // 1. Create Main Department Folder
+    const parentNodeId = `dept-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const parent = await Node.create({
+      nodeId: parentNodeId,
+      name: dept.name,
+      type: "folder",
+      projectId: SEED_PROJECT,
+      x: dept.x,
+      y: dept.y,
+      status: dept.status,
+      timestamp: Date.now()
+    });
+
+    // 2. Create 3 Sub-Units for each Department
+    for (let i = 0; i < 3; i++) {
+      const unitNodeId = `unit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const unit = await Node.create({
+        nodeId: unitNodeId,
+        name: `${dept.name.split(' ')[0]} Section ${String.fromCharCode(65 + i)}`,
+        parentId: parentNodeId, // Establish Noodle Link
+        type: "folder",
+        projectId: SEED_PROJECT,
+        x: dept.x + (i * 300) + (Math.random() * 80), // Organic positioning
+        y: dept.y + 250 + (Math.random() * 80),
+        status: "active",
+        timestamp: Date.now()
+      });
+
+      // 3. Create Doctors and Equipment (Grandchildren)
+      for (let j = 0; j < 4; j++) {
+        const isEquipment = j % 2 === 0;
+        await Node.create({
+          nodeId: `res-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          name: isEquipment 
+            ? `${['Monitor', 'Pump', 'Scanner', 'Ventilator'][j]} #${Math.floor(Math.random()*900)}` 
+            : `Staff: ${['Dr. Kumar', 'Nurse Vance', 'Dr. Chen', 'Dr. Smith'][j]}`,
+          parentId: unitNodeId,
+          type: "node",
+          projectId: SEED_PROJECT,
+          x: unit.x + (j * 200) - 100 + (Math.random() * 40),
+          y: unit.y + 180 + (Math.random() * 40),
+          status: Math.random() > 0.85 ? "error" : "idle",
+          timestamp: Date.now()
+        });
+      }
+    }
+  }
+
+  console.log("✅ 150+ Professional HMS Nodes Seeded!");
+  process.exit();
+}
+seed();
